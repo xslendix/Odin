@@ -1008,6 +1008,7 @@ gb_internal void init_universal(void) {
 			{"Essence",      TargetOs_essence},
 			{"FreeBSD",      TargetOs_freebsd},
 			{"OpenBSD",      TargetOs_openbsd},
+			{"Haiku",        TargetOs_haiku},
 			{"WASI",         TargetOs_wasi},
 			{"JS",           TargetOs_js},
 			{"Freestanding", TargetOs_freestanding},

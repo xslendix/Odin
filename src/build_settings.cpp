@@ -18,6 +18,7 @@ enum TargetOsKind : u16 {
 	TargetOs_essence,
 	TargetOs_freebsd,
 	TargetOs_openbsd,
+	TargetOs_haiku,
 	
 	TargetOs_wasi,
 	TargetOs_js,
