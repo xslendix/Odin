@@ -836,12 +836,15 @@ gb_internal void futex_wait(Futex *f, Footex val) {
 #include <pthread.h>
 #include <unordered_map>
 #include <memory>
+#include <mutex>
 
 struct MutexCond {
     pthread_mutex_t mutex;
     pthread_cond_t cond;
 };
 
+// NOTE: This will get us 50% chance of working.
+std::mutex map_mutex;
 std::unordered_map<Futex*, std::unique_ptr<MutexCond>> futex_map;
 
 MutexCond* get_mutex_cond(Futex* f) {
@@ -854,21 +857,30 @@ MutexCond* get_mutex_cond(Futex* f) {
 }
 
 void futex_signal(Futex *f) {
+	map_mutex.lock();
 	MutexCond* mc = get_mutex_cond(f);
+	map_mutex.unlock();
+
 	pthread_mutex_lock(&mc->mutex);
 	pthread_cond_signal(&mc->cond);
 	pthread_mutex_unlock(&mc->mutex);
 }
 
 void futex_broadcast(Futex *f) {
+	map_mutex.lock();
 	MutexCond* mc = get_mutex_cond(f);
+	map_mutex.unlock();
+
 	pthread_mutex_lock(&mc->mutex);
 	pthread_cond_broadcast(&mc->cond);
 	pthread_mutex_unlock(&mc->mutex);
 }
 
 void futex_wait(Futex *f, Footex val) {
+	map_mutex.lock();
 	MutexCond* mc = get_mutex_cond(f);
+	map_mutex.unlock();
+
 	pthread_mutex_lock(&mc->mutex);
 	while (f->load() == val) {
 		pthread_cond_wait(&mc->cond, &mc->mutex);
